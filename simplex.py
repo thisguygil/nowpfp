@@ -28,12 +28,16 @@ def simplex(c: NDArray, A: NDArray, b: NDArray, constraints: List[str], method: 
     
     # Perform the simplex method
     optimal_solution, optimal_value, success = perform_simplex(tableau, artificial_indices, c.shape[0])
+    
     if success:
+        # Convert the optimal solution back to the original form
         if method == "min":
-            optimal_value = -optimal_value  # Negate the value if the original problem was a minimization problem
+            optimal_value = -optimal_value
 
-        # Sanity check
-        if not np.allclose(A @ optimal_solution, b, atol=1e-6):
+        # Check if the solution is valid
+        if not sanity_check(A, b, constraints, optimal_solution):
+            optimal_solution = None
+            optimal_value = None
             success = False
     
     return optimal_solution, optimal_value, success
@@ -318,3 +322,26 @@ def extract_optimal(tableau: NDArray, num_vars: int) -> Tuple[NDArray, float]:
 
     value = -tableau[-1, -1]  # Negate the value because the objective function was negated
     return solution, value
+
+def sanity_check(A, b, constraints, optimal_solution) -> bool:
+    """
+    Perform a sanity check to verify that the solution is valid
+    
+    Args:
+        A: Coefficients in the constraints
+        b: Right-hand side of the constraints
+        constraints: List of constraint types ('<=', '>=', or '=')
+        optimal_solution: Optimal solution
+        
+    Returns:
+        bool: True if the solution is valid, False otherwise"""
+    for i, constraint in enumerate(constraints):
+            lhs_value = np.dot(A[i], optimal_solution)
+            if constraint == '<=' and not np.allclose(lhs_value, b[i], atol=1e-6) and lhs_value > b[i]:
+                return False
+            elif constraint == '>=' and not np.allclose(lhs_value, b[i], atol=1e-6) and lhs_value < b[i]:
+                return False
+            elif constraint == '=' and not np.allclose(lhs_value, b[i], atol=1e-6):
+                return False
+    
+    return True
