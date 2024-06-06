@@ -31,6 +31,10 @@ def simplex(c: NDArray, A: NDArray, b: NDArray, constraints: List[str], method: 
     if success:
         if method == "min":
             optimal_value = -optimal_value  # Negate the value if the original problem was a minimization problem
+
+        # Sanity check
+        if not np.allclose(A @ optimal_solution, b, atol=1e-6):
+            success = False
     
     return optimal_solution, optimal_value, success
 
