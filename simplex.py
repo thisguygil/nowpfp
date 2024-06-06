@@ -28,8 +28,9 @@ def simplex(c: NDArray, A: NDArray, b: NDArray, constraints: List[str], method: 
     
     # Perform the simplex method
     optimal_solution, optimal_value, success = perform_simplex(tableau, artificial_indices, c.shape[0])
-    if method == "min":
-        optimal_value = -optimal_value  # Negate the value if the original problem was a minimization problem
+    if success:
+        if method == "min":
+            optimal_value = -optimal_value  # Negate the value if the original problem was a minimization problem
     
     return optimal_solution, optimal_value, success
 
