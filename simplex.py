@@ -56,8 +56,16 @@ def convert_to_standard_form(c: NDArray, A: NDArray, b: NDArray, constraints: Li
             NDArray: Coefficients in the constraints
             NDArray: Right-hand side of the constraints
     """
-    # Get the number of constraints
-    num_constraints = A.shape[0]
+    # Get the number of constraints and variables
+    num_constraints, num_variables = A.shape
+
+    # Check if the dimensions of the input matrices are valid
+    if len(constraints) != num_constraints:
+        raise ValueError("Number of constraints must match the number of rows in A")
+    if num_constraints != b.shape[0]:
+        raise ValueError("Number of constraints must match the number of elements in b")
+    if c.shape[0] != num_variables:
+        raise ValueError("Number of variables must match the number of columns in A")
 
     # Initialize lists to store slack, surplus, and artificial variables
     slack_vars, surplus_vars, artificial_vars = [], [], []
